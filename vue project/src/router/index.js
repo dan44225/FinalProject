@@ -39,20 +39,21 @@ const router = createRouter({
           component: () => import('../views/InventoryView.vue'),
         },
         {
-          path: '/inventory-book',
-          name: 'inventory-book',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/InventoryBookView.vue'),
-        },
-        {
-          path: '/book-transaction',
-          name: 'book-transaction',
+          path: '/product-transaction',
+          name: 'product-transaction',
           // route level code-splitting
           // this generates a separate chunk (About.[hash].js) for this route
           // which is lazy-loaded when the route is visited.
           component: () => import('../views/BookTransaction.vue'),
+        },
+        
+         {
+          path: '/product-inventory',
+          name: 'product-inventory',
+          // route level code-splitting
+          // this generates a separate chunk (About.[hash].js) for this route
+          // which is lazy-loaded when the route is visited.
+          component: () => import('../views/Product.vue'),
         },
         {
           path: '/about',
@@ -61,14 +62,6 @@ const router = createRouter({
           // this generates a separate chunk (About.[hash].js) for this route
           // which is lazy-loaded when the route is visited.
           component: () => import('../views/AboutView.vue'),
-        },
-         {
-          path: '/product-transaction',
-          name: 'product-transaction',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/Product.vue'),
         },
       ]
     },

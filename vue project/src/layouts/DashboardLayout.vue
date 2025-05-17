@@ -10,7 +10,7 @@
         z-index: 0
     }
     .layout-header-bar{
-        background: #B76E79;
+        background: #ADD8E6;
         box-shadow: 0 1px 1px rgba(0,0,0,.1);
     }
     .layout-logo-left{
@@ -61,26 +61,23 @@
                         <Icon type="ios-navigate"></Icon>
                         <span>Home</span>
                     </MenuItem>
-                    <MenuItem @click="goTo('/inventory-book')" name="/inventory-book">
+                    <MenuItem @click="goTo('/product-transaction')" name="/product-transaction">
                         <Icon type="ios-search"></Icon>
-                        <span>Inventory Book</span>
-                    </MenuItem>
-                    <MenuItem @click="goTo('/book-transaction')" name="/book-transaction">
-                        <Icon type="ios-search"></Icon>
-                        <span>Book transaction</span>
+                        <span>Product Transaction</span>
                     </MenuItem>
                     <!-- <MenuItem @click="goTo('/inventory')" name="/inventory">
                         <Icon type="ios-search"></Icon>
                         <span>Inventory</span>
                     </MenuItem> -->
+                    <MenuItem @click="goTo('/product-inventory')" name="/product-inventory">
+                        <Icon type="ios-cube"></Icon>
+                        <span>Product Inventory</span>
+                    </MenuItem>
                     <MenuItem @click="goTo('/about')" name="/about">
                         <Icon type="ios-settings"></Icon>
                         <span>About</span>
                     </MenuItem>
-                    <MenuItem @click="goTo('/product-transaction')" name="/product-transaction">
-                        <Icon type="ios-cube"></Icon>
-                        <span>Product transaction</span>
-                    </MenuItem>
+                
                 </Menu>
             </Sider>
             <Layout>
