@@ -3,20 +3,19 @@
     <Card>
       <h2>Product Inventory</h2>
       <Form :model="form" :label-width="100">
-        
         <FormItem label="Product ID">
-          <Input v-model="form.id" />
+          <Input v-model="form.id" disabled/>
         </FormItem>
         <FormItem label="Product Name">
-          <Input v-model="form.title" />
+          <Input v-model="form.product_name" />
         </FormItem>
         <FormItem label="Category">
           <Select v-model="form.category" placeholder="Select Category">
-            <Option v-for="g in categorys" :key="g" :value="g">{{ g }}</Option>
+            <Option v-for="g in categories" :key="g" :value="g">{{ g }}</Option>
           </Select>
         </FormItem>
         <FormItem label="Brand">
-          <Input v-model="form.author" />
+          <Input v-model="form.brand" />
         </FormItem>
         <FormItem label="Selling Price">
           <Input v-model="form.price" type="number" />
@@ -54,20 +53,20 @@ export default {
     return {
       form: {
         id: null,
-        title: '',
-        author: '',
+        product_name: '',
+        brand: '',
         category: '',
         price: null,
         quantity: null,
-        expiry: null
+        expiry: null,
       },
+      categories: ['Electronics', 'Books', 'Clothing', 'Food'], // Example categories
       products: [],
-      categorys: ['Skincare','Haircare','Makeup','Fragrance','Bath & Body','Nail Care','Beauty Tools','Oral Care',],
       columns: [
         { title: 'Product ID', key: 'id' },
-        { title: 'Product Name', key: 'title' },
+        { title: 'Product Name', key: 'product_name' },
         { title: 'Category', key: 'category' },
-        { title: 'Brand', key: 'author' },
+        { title: 'Brand', key: 'brand' },
         { title: 'Selling Price', key: 'price' },
         { title: 'Stock', key: 'quantity' },
         { title: 'Expiry Date', key: 'expiry' },
@@ -80,37 +79,36 @@ export default {
       ]
     }
   },
-  mounted() {
-    this.fetchProducts()
-  },
   methods: {
     async fetchProducts() {
-      const { data, error } = await supabase.from('product').select('*')
-      if (!error) this.products = data
+      const { data, error } = await supabase.from('product').select()
+      if (!error) {
+        this.products = data
+      }
     },
     async saveProduct() {
+      const payload = { ...this.form }
+
+      let result
       if (this.form.id) {
-        const { error } = await supabase.from('product').update(this.form).eq('id', this.form.id)
-        if (!error) {
-          this.$Message.success('Product updated successfully')
-          this.fetchProducts()
-          this.resetForm()
-        }
+        result = await supabase.from('product').update(payload).eq('id', this.form.id).select()
       } else {
-        const form = { ...this.form }
-        delete form.id
-        const { error } = await supabase.from('product').insert([form])
-        if (!error) {
-          this.$Message.success('Product added successfully')
-          this.fetchProducts()
-          this.resetForm()
-        }
+        delete payload.id
+        result = await supabase.from('product').insert([payload])
+      }
+
+      const { error } = result
+
+      if (error) {
+        this.$Message.error(error.message)
+      } else {
+        this.$Message.success(this.form.id ? 'Product updated successfully' : 'Product added successfully')
+        this.fetchProducts()
+        this.resetForm()
       }
     },
     editProduct(product) {
       this.form = { ...product }
-      delete this.form._index
-      delete this.form._rowKey
     },
     async deleteProduct(id) {
       const { error } = await supabase.from('product').delete().eq('id', id)
@@ -122,14 +120,17 @@ export default {
     resetForm() {
       this.form = {
         id: null,
-        title: '',
-        author: '',
+        product_name: '',
+        brand: '',
         category: '',
         price: null,
         quantity: null,
         expiry: null
       }
     }
+  },
+  mounted() {
+    this.fetchProducts()
   }
 }
 </script>

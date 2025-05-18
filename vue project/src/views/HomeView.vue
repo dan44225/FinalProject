@@ -3,22 +3,22 @@
     <Card title="Monthly Overview" class="dashboard-metrics">
       <Row :gutter="16">
         <Col span="8">
-        <Card class="stat-card stat-sales" dis-hover>
-          <h3>Total Sales</h3>
-          <p class="stat-value">₱ {{ monthlyTotalSales.toLocaleString() }}</p>
-        </Card>
+          <Card class="stat-card stat-sales" dis-hover>
+            <h3>Total Sales</h3>
+            <p class="stat-value">₱ {{ monthlyTotalSales.toLocaleString() }}</p>
+          </Card>
         </Col>
         <Col span="8">
-        <Card class="stat-card stat-quantity" dis-hover>
-          <h3>Total Quantity Sold</h3>
-          <p class="stat-value">{{ monthlyTotalQuantity }}</p>
-        </Card>
+          <Card class="stat-card stat-quantity" dis-hover>
+            <h3>Total Quantity Sold</h3>
+            <p class="stat-value">{{ monthlyTotalQuantity }}</p>
+          </Card>
         </Col>
         <Col span="8">
-        <Card class="stat-card stat-count" dis-hover>
-          <h3>Transactions</h3>
-          <p class="stat-value">{{ monthlyTransactionCount }}</p>
-        </Card>
+          <Card class="stat-card stat-count" dis-hover>
+            <h3>Transactions</h3>
+            <p class="stat-value">{{ monthlyTransactionCount }}</p>
+          </Card>
         </Col>
       </Row>
     </Card>
@@ -43,8 +43,7 @@ export default {
       monthlyTransactionCount: 0,
       transactionColumns: [
         { title: 'Customer', key: 'customerName' },
-        { title: 'Book Name', key: 'title' },
-        // { title: 'Book ID', key: 'bookId' },
+        { title: 'Product Name', key: 'productName' },
         { title: 'Quantity', key: 'quantity' },
         { title: 'Price', key: 'price' },
         {
@@ -62,15 +61,15 @@ export default {
     async fetchLatestTransactions() {
       const { data, error } = await supabase
         .from('transaction')
-        .select(`*, book(title)`)
+        .select(`*, product(name)`)  
         .order('created_at', { ascending: false })
         .limit(5)
 
       if (!error) {
         this.latestTransactions = data.map(txn => ({
           ...txn,
-          title: txn.book?.title || '',
-        }));
+          productName: txn.product?.name || '',
+        }))
       }
     },
     async fetchMonthlyStats() {
