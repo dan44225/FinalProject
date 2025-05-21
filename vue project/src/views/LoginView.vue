@@ -1,5 +1,6 @@
 <template>
   <div class="login-container">
+    <div class="inventory-title">✨ BeautyLine Inventory System ✨</div>
     <Card class="login-card" shadow>
       <template #title>Login</template>
       <Form ref="loginFormRef" :model="loginForm" :rules="rules" label-position="top">
@@ -45,12 +46,10 @@ export default {
       this.$refs.loginFormRef.validate((valid) => {
         if (valid) {
           this.loading = true;
-          // Simulate login
           setTimeout(() => {
             this.loading = false;
             this.$Message.success('Login successful!');
-            this.$router.push('/home')
-            // Redirect or emit event here
+            this.$router.push('/home');
           }, 1000);
         }
       });
@@ -62,10 +61,19 @@ export default {
 <style scoped>
 .login-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   height: 100vh;
-  background: #f0f2f5;
+  background: #ffe6f0; /* soft pink background */
+}
+
+.inventory-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #d63384;
+  text-align: center;
 }
 
 .login-card {

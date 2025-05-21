@@ -1,11 +1,15 @@
 <template>
   <div class="dashboard-wrapper">
+    <h1 class="brand-header">✨ BeautyLine Inventory System ✨</h1>
+
     <Card title="Monthly Overview" class="dashboard-metrics">
       <Row :gutter="16">
         <Col span="8">
           <Card class="stat-card stat-sales" dis-hover>
             <h3>Total Sales</h3>
-            <p class="stat-value">₱ {{ monthlyTotalSales.toLocaleString() }}</p>
+            <p class="stat-value">
+              ₱ {{ monthlyTotalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+            </p>
           </Card>
         </Col>
         <Col span="8">
@@ -42,65 +46,104 @@ export default {
       monthlyTotalQuantity: 0,
       monthlyTransactionCount: 0,
       transactionColumns: [
-        { title: 'Customer', key: 'customerName' },
-        { title: 'Product Name', key: 'productName' },
+        { title: 'Customer', key: 'custome_name' },
+        { title: 'Product Name', key: 'title' },
         { title: 'Quantity', key: 'quantity' },
-        { title: 'Price', key: 'price' },
         {
-          title: 'Total',
-          render: (h, { row }) => h('span', row.quantity * row.price),
+          title: 'Price (₱)',
+          key: 'price',
+          render: (h, { row }) =>
+            h('span', Number(row.price).toLocaleString(undefined, { minimumFractionDigits: 2 }))
+        },
+        {
+          title: 'Total (₱)',
+          render: (h, { row }) =>
+            h('span', (row.quantity * row.price).toLocaleString(undefined, { minimumFractionDigits: 2 }))
         },
         {
           title: 'Date',
-          render: (h, { row }) => h('span', moment(row.created_at).format('MMM DD, YYYY')),
-        },
+          render: (h, { row }) =>
+            h('span', moment(row.created_at).format('MMM DD, YYYY'))
+        }
       ],
+    }
+  },
+  computed: {
+    monthStart() {
+      return moment().startOf('month').toISOString()
+    },
+    monthEnd() {
+      return moment().endOf('month').toISOString()
     }
   },
   methods: {
     async fetchLatestTransactions() {
       const { data, error } = await supabase
-        .from('transaction')
-        .select(`*, product(name)`)  
+        .from('transactions')
+        .select('*, product(product_name)')
         .order('created_at', { ascending: false })
         .limit(5)
 
-      if (!error) {
-        this.latestTransactions = data.map(txn => ({
-          ...txn,
-          productName: txn.product?.name || '',
-        }))
+      if (error) {
+        this.$Message.error('Failed to load latest transactions')
+        return
       }
+
+      this.latestTransactions = data.map(txn => ({
+        ...txn,
+        productName: txn.product?.product_name || ''
+      }))
     },
+
     async fetchMonthlyStats() {
-      const startOfMonth = moment().startOf('month').format('YYYY-MM-DD')
-      const endOfMonth = moment().endOf('month').format('YYYY-MM-DD')
-
       const { data, error } = await supabase
-        .from('transaction')
+        .from('transactions')
         .select('quantity, price')
-        .gte('created_at', startOfMonth)
-        .lte('created_at', endOfMonth)
+        .gte('created_at', this.monthStart)
+        .lte('created_at', this.monthEnd)
 
-      if (!error) {
-        this.monthlyTotalSales = data.reduce((acc, curr) => acc + Number(curr.price) * Number(curr.quantity), 0)
-        this.monthlyTotalQuantity = data.reduce((acc, curr) => acc + Number(curr.quantity), 0)
-        this.monthlyTransactionCount = data.length
+      if (error) {
+        this.$Message.error('Failed to load monthly stats')
+        return
       }
-    },
+
+      this.monthlyTransactionCount = data.length
+      this.monthlyTotalQuantity = data.reduce((sum, { quantity }) => sum + Number(quantity), 0)
+      this.monthlyTotalSales = data.reduce((sum, { price, quantity }) => sum + Number(price) * Number(quantity), 0)
+    }
   },
   mounted() {
     this.fetchLatestTransactions()
     this.fetchMonthlyStats()
-  },
+  }
 }
 </script>
 
 <style scoped>
+.dashboard-wrapper {
+  max-width: 1000px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 16px;
+  background-color: #fff0f6; /* soft pink background */
+  min-height: 100vh;
+}
+
+.brand-header {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #d63384;
+  margin-bottom: 20px;
+}
+
 .stat-card {
   text-align: center;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .stat-value {
@@ -109,18 +152,19 @@ export default {
   margin-top: 8px;
 }
 
+/* Theme-adjusted colors */
 .stat-sales {
-  background-color: #e6f7ff;
-  color: #1890ff;
+  background-color: #ffe6f0;
+  color: #e83e8c;
 }
 
 .stat-quantity {
-  background-color: #f6ffed;
-  color: #52c41a;
+  background-color: #fff5e6;
+  color: #d48806;
 }
 
 .stat-count {
-  background-color: #fff1f0;
-  color: #f5222d;
+  background-color: #f9f0ff;
+  color: #9254de;
 }
 </style>

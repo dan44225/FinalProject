@@ -1,33 +1,38 @@
 <template>
   <div class="p-4">
     <Card>
-      <h2>Product Inventory</h2>
-      <Form :model="form" :label-width="100">
-        <FormItem label="Product ID">
-          <Input v-model="form.id" disabled/>
+      <h2>Beauty Product Inventory</h2>
+      <Form :model="form" :rules="rules" ref="formRef" label-width="100">
+        <FormItem label="Image URL" prop="image_url">
+          <Input v-model="form.image_url" placeholder="Enter image URL" />
         </FormItem>
-        <FormItem label="Product Name">
-          <Input v-model="form.product_name" />
+        <FormItem label="Product" prop="title">
+          <Input v-model="form.title" placeholder="Product" />
         </FormItem>
-        <FormItem label="Category">
+        <FormItem label="Brand" prop="brand">
+          <Input v-model="form.brand" placeholder="Brand" />
+        </FormItem>
+        <FormItem label="Category" prop="category">
           <Select v-model="form.category" placeholder="Select Category">
-            <Option v-for="g in categories" :key="g" :value="g">{{ g }}</Option>
+            <Option v-for="c in categories" :key="c" :value="c">{{ c }}</Option>
           </Select>
         </FormItem>
-        <FormItem label="Brand">
-          <Input v-model="form.brand" />
+        <FormItem label="Price (₱)" prop="price">
+          <Input v-model.number="form.price" type="number" placeholder="0.00" />
         </FormItem>
-        <FormItem label="Selling Price">
-          <Input v-model="form.price" type="number" />
+        <FormItem label="Stock" prop="quantity">
+          <Input v-model.number="form.quantity" type="number" placeholder="0" />
         </FormItem>
-        <FormItem label="Stock">
-          <Input v-model="form.quantity" type="number" />
-        </FormItem>
-        <FormItem label="Expiry Date">
-          <DatePicker v-model="form.expiry" type="date" placeholder="Select expiry date" style="width: 100%;" />
+        <FormItem label="Expiry Date" prop="expiry">
+          <DatePicker
+            v-model="form.expiry"
+            type="date"
+            placeholder="Select expiry date"
+            style="width: 100%;"
+          />
         </FormItem>
         <FormItem>
-          <Button type="primary" @click="saveProduct">{{ form.id ? 'Update' : 'Add' }}</Button>
+          <Button type="primary" @click="handleSubmit">{{ form.id ? 'Update' : 'Add' }}</Button>
           <Button @click="resetForm" style="margin-left: 8px;">Reset</Button>
         </FormItem>
       </Form>
@@ -53,90 +58,125 @@ export default {
     return {
       form: {
         id: null,
-        product_name: '',
+        image_url: '',
+        title: '',
         brand: '',
         category: '',
         price: null,
         quantity: null,
         expiry: null,
       },
-      categories: ['Electronics', 'Books', 'Clothing', 'Food'], // Example categories
+      rules: {
+        title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
+        brand: [{ required: true, message: 'Brand is required', trigger: 'blur' }],
+        price: [{ required: true, type: 'number', message: 'Price is required', trigger: 'blur' }],
+        quantity: [{ required: true, type: 'number', message: 'Stock is required', trigger: 'blur' }],
+        category: [{ required: true, message: 'Category is required', trigger: 'change' }],
+      },
       products: [],
+      categories: ['Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Nails'],
       columns: [
-        { title: 'Product ID', key: 'id' },
-        { title: 'Product Name', key: 'product_name' },
-        { title: 'Category', key: 'category' },
-        { title: 'Brand', key: 'brand' },
-        { title: 'Selling Price', key: 'price' },
-        { title: 'Stock', key: 'quantity' },
-        { title: 'Expiry Date', key: 'expiry' },
         {
-          title: 'Action',
-          slot: 'action',
-          width: 180,
-          align: 'center'
-        }
-      ]
+          title: 'Image',
+          key: 'image_url',
+          render: (h, { row }) =>
+            h('img', {
+              attrs: { src: row.image_url, alt: row.title },
+              class: 'thumb',
+            }),
+        },
+        { title: 'Title', key: 'title' },
+        { title: 'Brand', key: 'brand' },
+        { title: 'Category', key: 'category' },
+        { title: 'Price', key: 'price' },
+        { title: 'Stock', key: 'quantity' },
+        {
+          title: 'Expiry',
+          key: 'expiry',
+          render: (h, { row }) => h('span', row.expiry ? new Date(row.expiry).toLocaleDateString() : '—'),
+        },
+        { title: 'Action', slot: 'action', width: 180, align: 'center' },
+      ],
     }
+  },
+  mounted() {
+    this.fetchProducts()
   },
   methods: {
     async fetchProducts() {
-      const { data, error } = await supabase.from('product').select()
-      if (!error) {
-        this.products = data
-      }
+      const { data, error } = await supabase.from('products').select('*')
+      if (!error) this.products = data
+      else this.$Message.error('Failed to fetch products')
+    },
+    handleSubmit() {
+      this.$refs.formRef.validate(valid => {
+        if (!valid) return
+        this.saveProduct()
+      })
     },
     async saveProduct() {
-      const payload = { ...this.form }
-
-      let result
       if (this.form.id) {
-        result = await supabase.from('product').update(payload).eq('id', this.form.id).select()
+        const { error } = await supabase
+          .from('products')
+          .update(this.form)
+          .eq('id', this.form.id)
+        if (!error) {
+          this.$Message.success('Product updated successfully')
+          this.fetchProducts()
+          this.resetForm()
+        } else {
+          this.$Message.error('Failed to update product')
+        }
       } else {
-        delete payload.id
-        result = await supabase.from('product').insert([payload])
-      }
-
-      const { error } = result
-
-      if (error) {
-        this.$Message.error(error.message)
-      } else {
-        this.$Message.success(this.form.id ? 'Product updated successfully' : 'Product added successfully')
-        this.fetchProducts()
-        this.resetForm()
+        const form = { ...this.form }
+        delete form.id
+        const { error } = await supabase.from('products').insert([form])
+        if (!error) {
+          this.$Message.success('Product added successfully')
+          this.fetchProducts()
+          this.resetForm()
+        } else {
+          this.$Message.error('Failed to add product')
+        }
       }
     },
     editProduct(product) {
-      this.form = { ...product }
+      const { _index, _rowKey, ...cleaned } = product
+      this.form = { ...cleaned }
     },
     async deleteProduct(id) {
-      const { error } = await supabase.from('product').delete().eq('id', id)
+      const { error } = await supabase.from('products').delete().eq('id', id)
       if (!error) {
         this.$Message.success('Product deleted successfully')
         this.fetchProducts()
+      } else {
+        this.$Message.error('Failed to delete product')
       }
     },
     resetForm() {
       this.form = {
         id: null,
-        product_name: '',
+        image_url: '',
+        title: '',
         brand: '',
         category: '',
         price: null,
         quantity: null,
-        expiry: null
+        expiry: null,
       }
-    }
+    },
   },
-  mounted() {
-    this.fetchProducts()
-  }
 }
 </script>
 
 <style scoped>
 h2 {
   margin-bottom: 20px;
+}
+.thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 </style>

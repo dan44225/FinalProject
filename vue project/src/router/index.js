@@ -15,55 +15,42 @@ const router = createRouter({
       component: FullScreenLayout,
       children: [
         {
-          path: '/login',
+          path: 'login',
           name: 'login',
-          component: () => import('../views/LoginView.vue'),
+          component: () => import('@/views/LoginView.vue'),
         },
-      ]
+      ],
     },
     {
       path: '/',
       component: DashboardLayout,
       children: [
         {
-          path: '/home',
+          path: 'home',
           name: 'home',
           component: HomeView,
         },
         {
-          path: '/inventory',
+          path: 'inventory',
           name: 'inventory',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/InventoryView.vue'),
+          component: () => import('@/views/ProductInventoryView.vue'),
         },
         {
-          path: '/product-transaction',
+          path: 'product-transaction',
           name: 'product-transaction',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/ProductTransaction.vue'),
-        },
-        
-         {
-          path: '/product-inventory',
-          name: 'product-inventory',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/Product.vue'),
+          component: () => import('@/views/ProductTransaction.vue'),
         },
         {
-          path: '/about',
-          name: 'about',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/AboutView.vue'),
+          path: 'product-inventory',
+          name: 'product-inventory',
+          component: () => import('@/views/Product.vue'),
         },
-      ]
+        {
+          path: 'about',
+          name: 'about',
+          component: () => import('@/views/AboutView.vue'),
+        },
+      ],
     },
   ],
 })
