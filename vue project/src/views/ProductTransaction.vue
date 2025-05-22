@@ -97,7 +97,7 @@ export default {
         product_id: [
           { required: true, message: 'Please select a product', trigger: 'change' }
         ],
-        customer_ame: [
+        customer_name: [
           { required: true, message: 'Customer name is required', trigger: 'blur' }
         ],
         quantity: [

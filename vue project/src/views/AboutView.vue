@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <div class="about-content">
-      <h1>✨ SDL BeautyLine ✨</h1>
+      <h1>✨ SDL Beauty Line ✨</h1>
       <p>Your trusted inventory and transaction system for beauty products.</p>
       <p>Efficient. Elegant. Empowering your business.</p>
     </div>

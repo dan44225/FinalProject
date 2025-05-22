@@ -22,6 +22,9 @@
           <FormItem label="Title" prop="title">
             <Input v-model="formData.title" placeholder="Product title" />
           </FormItem>
+          <FormItem label="Brand" prop="brand">
+            <Input v-model="formData.brand" placeholder="Brand" />
+          </FormItem>
           <FormItem label="Category" prop="category">
             <Input v-model="formData.category" placeholder="Category" />
           </FormItem>
@@ -45,24 +48,24 @@ export default {
       editingIndex: null,
       formSubmitting: false,
       formData: {
-        image_url: '',
-        title: '',
-        category: '',
-        quantity: 0,
-      },
-      rules: {
-        image_url: [{ required: true, message: 'Image URL is required', trigger: 'blur' }],
-        title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
-        category: [{ required: true, message: 'Category is required', trigger: 'blur' }],
-        quantity: [{ type: 'number', required: true, message: 'Quantity required', trigger: 'change' }],
-      },
+    image_url: '',
+    title: '',
+    category: '',
+    quantity: 0,
+    },
+    rules: {
+    image_url: [{ required: true, message: 'Image URL is required', trigger: 'blur' }],
+    title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
+    quantity: [{ type: 'number', required: true, message: 'Quantity required', trigger: 'change' }],
+    },
+
       columns: [
         {
           title: 'Image', key: 'image_url', render: (h, { row }) =>
             h('img', { attrs: { src: row.image_url, alt: row.title }, class: 'thumb' })
         },
-        { title: 'Product', key: 'title' },
-        { title: 'Category', key: 'category' },
+        { title: 'Product Name', key: 'title' },
+        { title: 'Brand',   key: 'brand' },
         { title: 'Quantity', key: 'quantity' },
         {
           title: 'Actions', key: 'actions', render: (h, { index }) =>
