@@ -1,8 +1,8 @@
 <template>
   <div class="login-container">
-    <div class="inventory-title">✨ BeautyLine Inventory System ✨</div>
+    <div class="inventory-title">The Beauty Shelf</div>
     <Card class="login-card" shadow>
-      <template #title>Login</template>
+     <template #title>Login</template>
       <Form ref="loginFormRef" :model="loginForm" :rules="rules" label-position="top">
         <FormItem label="Username" prop="username">
           <Input v-model="loginForm.username" placeholder="Enter your username" />
@@ -65,18 +65,43 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #ffe6f0; /* soft pink background */
+  background: #f8f1ec;
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #4a4039;
+  position: relative;
+  padding: 20px;
 }
 
+/* Decorative line or symbol */
+.login-decor {
+  width: 60px;
+  height: 2px;
+  background-color: #d8c1b3;
+  margin: 8px auto 24px auto;
+  border-radius: 2px;
+}
+
+/* Title above the card */
 .inventory-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #d63384;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #a67c6d;
   text-align: center;
+  margin-bottom: 0;
+  letter-spacing: 0.03em;
 }
 
+/* Card with soft nude box shadow */
 .login-card {
-  width: 400px;
+  width: 380px;
+  background: #fff8f3;
+  padding: 32px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(107, 91, 81, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
 }
 </style>
