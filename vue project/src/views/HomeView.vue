@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-wrapper">
-    <h1 class="brand-header">✨ BeautyLine Inventory System ✨</h1>
+    <h1 class="brand-header">The Beauty Shelf</h1>
 
     <Card title="Monthly Overview" class="dashboard-metrics">
       <Row :gutter="16">
@@ -121,50 +121,65 @@ export default {
 
 <style scoped>
 .dashboard-wrapper {
-  max-width: 1000px;
+  max-width: 900px;
   margin: auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px 16px;
-  background-color: #fff0f6; /* soft pink background */
+  padding: 40px 24px;
+  background-color: #f8f1ec; /* soft nude beige */
   min-height: 100vh;
+  font-family: 'Georgia', serif; /* classy serif font */
+  color: #6b5b51; /* warm muted brown text */
 }
 
 .brand-header {
   text-align: center;
-  font-size: 28px;
-  font-weight: bold;
-  color: #d63384;
-  margin-bottom: 20px;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #a67c6d; /* dusty nude rose */
+  margin-bottom: 28px;
+  letter-spacing: 0.05em;
+  font-family: 'Playfair Display', serif; /* elegant heading font */
+  text-transform: uppercase;
 }
 
 .stat-card {
+  flex: 1;
   text-align: center;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(107, 91, 81, 0.15);
+  background-color: #fff8f3; /* very pale nude */
+  transition: box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.stat-card:hover {
+  box-shadow: 0 8px 20px rgba(107, 91, 81, 0.3);
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 8px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 12px;
+  color: #8c705a;
+  font-family: 'Georgia', serif;
 }
 
-/* Theme-adjusted colors */
+/* Nude-themed card variations */
 .stat-sales {
-  background-color: #ffe6f0;
-  color: #e83e8c;
+  background-color: #f2e6df; /* light warm beige */
+  color: #ad8a72; /* soft brown */
 }
 
 .stat-quantity {
-  background-color: #fff5e6;
-  color: #d48806;
+  background-color: #f7f0e8; /* pale cream */
+  color: #bfa18a; /* muted taupe */
 }
 
 .stat-count {
-  background-color: #f9f0ff;
-  color: #9254de;
+  background-color: #f9f5f2; /* almost white nude */
+  color: #9e8d7f; /* light warm gray */
 }
 </style>
