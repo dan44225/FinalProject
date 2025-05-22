@@ -80,7 +80,7 @@ export default {
     async fetchLatestTransactions() {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, product(product_name)')
+        .select('*, products(title)')
         .order('created_at', { ascending: false })
         .limit(5)
 

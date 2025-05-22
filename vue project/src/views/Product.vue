@@ -3,36 +3,33 @@
     <Card>
       <h2>Beauty Product Inventory</h2>
       <Form :model="form" :rules="rules" ref="formRef" label-width="100">
-        <FormItem label="Image URL" prop="image_url">
-          <Input v-model="form.image_url" placeholder="Enter image URL" />
+        
+        <FormItem label="Product">
+          <Input v-model="form.title"/>
         </FormItem>
-        <FormItem label="Product" prop="title">
-          <Input v-model="form.title" placeholder="Product" />
+        <FormItem label="Brand">
+          <Input v-model="form.brand"/>
         </FormItem>
-        <FormItem label="Brand" prop="brand">
-          <Input v-model="form.brand" placeholder="Brand" />
-        </FormItem>
-        <FormItem label="Category" prop="category">
-          <Select v-model="form.category" placeholder="Select Category">
+        <FormItem label="Category">
+          <Select v-model="form.category">
             <Option v-for="c in categories" :key="c" :value="c">{{ c }}</Option>
           </Select>
         </FormItem>
-        <FormItem label="Price (₱)" prop="price">
-          <Input v-model.number="form.price" type="number" placeholder="0.00" />
+        <FormItem label="Price (₱)">
+          <Input v-model.number="form.price" type="number"  />
         </FormItem>
-        <FormItem label="Stock" prop="quantity">
-          <Input v-model.number="form.quantity" type="number" placeholder="0" />
+        <FormItem label="Stock">
+          <Input v-model.number="form.quantity" type="number" />
         </FormItem>
-        <FormItem label="Expiry Date" prop="expiry">
+        <FormItem label="Expiry Date">
           <DatePicker
             v-model="form.expiry"
             type="date"
-            placeholder="Select expiry date"
             style="width: 100%;"
           />
         </FormItem>
         <FormItem>
-          <Button type="primary" @click="handleSubmit">{{ form.id ? 'Update' : 'Add' }}</Button>
+          <Button type="primary" @click="saveProduct">{{ form.id ? 'Update' : 'Add' }}</Button>
           <Button @click="resetForm" style="margin-left: 8px;">Reset</Button>
         </FormItem>
       </Form>
@@ -58,7 +55,6 @@ export default {
     return {
       form: {
         id: null,
-        image_url: '',
         title: '',
         brand: '',
         category: '',
@@ -76,16 +72,8 @@ export default {
       products: [],
       categories: ['Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Nails'],
       columns: [
-        {
-          title: 'Image',
-          key: 'image_url',
-          render: (h, { row }) =>
-            h('img', {
-              attrs: { src: row.image_url, alt: row.title },
-              class: 'thumb',
-            }),
-        },
-        { title: 'Title', key: 'title' },
+
+        { title: 'Product', key: 'title' },
         { title: 'Brand', key: 'brand' },
         { title: 'Category', key: 'category' },
         { title: 'Price', key: 'price' },
@@ -105,15 +93,11 @@ export default {
   methods: {
     async fetchProducts() {
       const { data, error } = await supabase.from('products').select('*')
+
       if (!error) this.products = data
       else this.$Message.error('Failed to fetch products')
     },
-    handleSubmit() {
-      this.$refs.formRef.validate(valid => {
-        if (!valid) return
-        this.saveProduct()
-      })
-    },
+
     async saveProduct() {
       if (this.form.id) {
         const { error } = await supabase
@@ -131,6 +115,7 @@ export default {
         const form = { ...this.form }
         delete form.id
         const { error } = await supabase.from('products').insert([form])
+
         if (!error) {
           this.$Message.success('Product added successfully')
           this.fetchProducts()
@@ -141,8 +126,11 @@ export default {
       }
     },
     editProduct(product) {
-      const { _index, _rowKey, ...cleaned } = product
-      this.form = { ...cleaned }
+      console.log(product)
+     
+      this.form = { ...product}
+      delete this.form._index
+      delete this.form._rowKey
     },
     async deleteProduct(id) {
       const { error } = await supabase.from('products').delete().eq('id', id)
@@ -156,7 +144,6 @@ export default {
     resetForm() {
       this.form = {
         id: null,
-        image_url: '',
         title: '',
         brand: '',
         category: '',

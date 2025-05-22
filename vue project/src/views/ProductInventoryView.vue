@@ -16,17 +16,15 @@
         ok-text="Save"
       >
         <Form ref="formRef" :model="formData" :rules="rules" label-position="top">
-          <FormItem label="Image URL" prop="image_url">
-            <Input v-model="formData.image_url" placeholder="Enter image URL" />
-          </FormItem>
-          <FormItem label="Title" prop="title">
+         
+          <FormItem label="Product Name" prop="title">
             <Input v-model="formData.title" placeholder="Product title" />
-          </FormItem>
-          <FormItem label="Brand" prop="brand">
-            <Input v-model="formData.brand" placeholder="Brand" />
           </FormItem>
           <FormItem label="Category" prop="category">
             <Input v-model="formData.category" placeholder="Category" />
+          </FormItem>
+          <FormItem label="Brand" prop="brand">
+            <Input v-model="formData.brand" placeholder="Brand" />
           </FormItem>
           <FormItem label="Quantity" prop="quantity">
             <InputNumber v-model="formData.quantity" :min="0" style="width: 100%" />
@@ -48,28 +46,29 @@ export default {
       editingIndex: null,
       formSubmitting: false,
       formData: {
-    image_url: '',
-    title: '',
-    category: '',
-    quantity: 0,
-    },
-    rules: {
-    image_url: [{ required: true, message: 'Image URL is required', trigger: 'blur' }],
-    title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
-    quantity: [{ type: 'number', required: true, message: 'Quantity required', trigger: 'change' }],
-    },
+  title: '',
+  category: '',
+  brand: '',   // add this
+  quantity: 0,
+},
+
+rules: {
+  title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
+  category: [{ required: true, message: 'Category is required', trigger: 'blur' }],
+  brand: [{ required: true, message: 'Brand is required', trigger: 'blur' }],  // add this
+  quantity: [{ type: 'number', required: true, message: 'Quantity required', trigger: 'change' }],
+},
+
 
       columns: [
-        {
-          title: 'Image', key: 'image_url', render: (h, { row }) =>
-            h('img', { attrs: { src: row.image_url, alt: row.title }, class: 'thumb' })
-        },
+       
         { title: 'Product Name', key: 'title' },
         { title: 'Brand',   key: 'brand' },
+        { title: 'Category',   key: 'category' },
         { title: 'Quantity', key: 'quantity' },
         {
-          title: 'Actions', key: 'actions', render: (h, { index }) =>
-            h('div', [
+          title: 'Actions', key: 'actions', render: (h, { index }) =>{
+            return h('div', [
               h('Button', {
                 props: { size: 'small', type: 'primary' },
                 style: { marginRight: '8px' },
@@ -80,6 +79,7 @@ export default {
                 on: { click: () => this.deleteItem(index) }
               }, 'Delete')
             ])
+          }
         }
       ],
     }
@@ -89,7 +89,7 @@ export default {
       this.isEditing = !!item;
       this.editingIndex = index;
       this.modalVisible = true;
-      this.formData = item ? { ...item } : { image_url: '', title: '', category: '', quantity: 0 };
+      this.formData = { title: '', category: '', brand: '', quantity: 0 };
     },
     submitForm() {
       this.$refs.formRef.validate((valid) => {
