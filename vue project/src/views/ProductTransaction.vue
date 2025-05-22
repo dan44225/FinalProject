@@ -5,35 +5,30 @@
         
         <FormItem>
           <Input v-model="search" placeholder="Search product..." @input="filterProducts" />
-          <Table :columns="productColumns" :data="filteredProducts" @on-row-click="selectProduct" size="small" border
-            height="200" :row-class-name="rowClassName" />
+          <Table
+            :columns="productColumns"
+            :data="filteredProducts"
+            @on-row-click="selectProduct"
+            size="small"
+            border
+            height="200"
+            :row-class-name="rowClassName"
+          />
         </FormItem>
 
         <FormItem label="Product" prop="product_id">
-          
-          
-          
           <div v-if="form.product_id">
-          
-                <p>{{ selectedProduct.title }}</p>
-                <p>Available Quantity: {{ selectedProduct.quantity }}</p>
-              
+            <p>{{ selectedProduct.title }}</p>
+            <p>Available Quantity: {{ selectedProduct.quantity }}</p>
           </div>
         </FormItem>
 
         <FormItem label="Customer Name" prop="customer_name">
-          <Input
-            v-model="form.customer_name"
-            placeholder="Enter customer name"
-          />
+          <Input v-model="form.customer_name" placeholder="Enter customer name" />
         </FormItem>
 
         <FormItem label="Note" prop="note">
-          <Input
-            v-model="form.note"
-            type="textarea"
-            placeholder="Optional note"
-          />
+          <Input v-model="form.note" type="textarea" placeholder="Optional note" />
         </FormItem>
 
         <FormItem label="Quantity" prop="quantity">
@@ -54,7 +49,7 @@
         </FormItem>
 
         <FormItem>
-          <Button type="primary" @click="submit">Submit</Button>
+          <Button type="primary" @click.prevent="submit">Submit</Button>
         </FormItem>
       </Form>
     </Card>
@@ -80,26 +75,16 @@ export default {
         price: 0,
       },
       rules: {
-        product_id: [
-          { required: true, message: 'Please select a product' }
-        ],
-        customer_name: [
-          { required: true, message: 'Customer name is required', trigger: 'blur' }
-        ],
+        product_id: [{ required: true, message: 'Please select a product' }],
+        customer_name: [{ required: true, message: 'Customer name is required', trigger: 'blur' }],
         quantity: [
           { required: true, type: 'number', min: 1, message: 'Minimum quantity is 1', trigger: 'change' },
           {
-            validator(rule, value, callback)  {
-              if (value > this.selectedProduct.quantity) {
-                callback(new Error('Quantity exceeds available quantity'))
-              } else {
-                callback()
-              }
-            },
+            validator: this.validateQuantity,
             trigger: 'change',
           },
         ],
-        price: [{ required: true}],
+        price: [{ required: true }],
       },
       products: [],
       filteredProducts: [],
@@ -107,26 +92,31 @@ export default {
       search: '',
       transactions: [],
       productColumns: [
-      
         { title: 'Product Name', key: 'title' },
         { title: 'Brand', key: 'brand' },
         { title: 'Price', key: 'price' },
         { title: 'Available Quantity', key: 'quantity' },
       ],
       transactionColumns: [
-        
         { title: 'Product', key: 'title' },
         { title: 'Note', key: 'note' },
         { title: 'Quantity', key: 'quantity' },
         { title: 'Price', key: 'price' },
         {
           title: 'Total',
-          render: (h, { row }) => h('span', `₱ ${row.quantity * row.price}`),
+          render: (h, params) => h('span', `₱ ${(params.row.quantity * params.row.price).toFixed(2)}`),
         },
       ],
     }
   },
   methods: {
+    validateQuantity(rule, value, callback) {
+      if (value > this.selectedProduct.quantity) {
+        callback(new Error('Quantity exceeds available quantity'))
+      } else {
+        callback()
+      }
+    },
     async fetchProducts() {
       const { data, error } = await supabase.from('products').select('*').gte('quantity', 1)
       if (!error) {
@@ -147,7 +137,7 @@ export default {
         this.transactions = data.map(txn => ({
           ...txn,
           title: txn.products?.title || '',
-        }));
+        }))
       } else {
         this.$Message.error('Failed to fetch transactions')
       }
@@ -167,68 +157,59 @@ export default {
       this.form.price = row.price
       this.form.quantity = 1
       this.selectedProduct = row
-     
     },
-      
-  
     rowClassName(row) {
       return row.quantity <= 0 ? 'row-disabled' : ''
     },
-async submit() {
-  console.log('Submitting form...');
-  console.log('Form:', this.form);
-  console.log('Selected Product:', this.selectedProduct);
+    async submit() {
+      console.log('Submitting form...')
+      console.log('Form:', this.form)
+      console.log('Selected Product:', this.selectedProduct)
 
-  // Validate the form
-  this.$refs.formRef.validate((valid) => {
-    console.log('Validation result:', valid);  // THIS SHOULD SHOW in console
+      this.$refs.formRef.validate(async valid => {
+        console.log('Validation result:', valid)
 
-    if (!valid) {
-      this.$Message.error('Form validation failed');
-      return;
-    }
+        if (!valid) {
+          this.$Message.error('Form validation failed')
+          return
+        }
 
-    if (this.form.quantity > this.selectedProduct.quantity) {
-      this.$Message.error('Not enough stock for this product');
-      return;
-    }
+        if (this.form.quantity > this.selectedProduct.quantity) {
+          this.$Message.error('Not enough stock for this product')
+          return
+        }
 
-    // Run async code inside an async IIFE to await correctly
-    (async () => {
-      const { error: insertError } = await supabase.from('transactions').insert([
-        {
-          product_id: this.form.product_id,
-          customer_name: this.form.customer_name,
-          note: this.form.note,
-          quantity: this.form.quantity,
-          price: this.form.price,
-        },
-      ]);
+        const { error: insertError } = await supabase.from('transactions').insert([
+          {
+            product_id: this.form.product_id,
+            customer_name: this.form.customer_name,
+            note: this.form.note,
+            quantity: this.form.quantity,
+            price: this.form.price,
+          },
+        ])
 
-      if (insertError) {
-        this.$Message.error('Failed to save transaction');
-        return;
-      }
+        if (insertError) {
+          this.$Message.error('Failed to save transaction')
+          return
+        }
 
-      const newQty = this.selectedProduct.quantity - this.form.quantity;
-      const { error: updateError } = await supabase
-        .from('products')
-        .update({ quantity: newQty })
-        .eq('id', this.form.product_id);
+        const newQty = this.selectedProduct.quantity - this.form.quantity
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({ quantity: newQty })
+          .eq('id', this.form.product_id)
 
-      if (updateError) {
-        this.$Message.error('Saved transaction, but failed to update product quantity');
-      }
+        if (updateError) {
+          this.$Message.error('Saved transaction, but failed to update product quantity')
+        }
 
-      this.$Message.success('Transaction completed!');
-      this.resetForm();
-      this.fetchProducts();
-      this.fetchTransactions();
-    })();
-  });
-},
-
-
+        this.$Message.success('Transaction completed!')
+        this.resetForm()
+        this.fetchProducts()
+        this.fetchTransactions()
+      })
+    },
     resetForm() {
       this.form = {
         product_id: null,
@@ -272,7 +253,6 @@ async submit() {
   align-items: center;
   gap: 12px;
 }
-
 
 .product-thumb {
   width: 40px;

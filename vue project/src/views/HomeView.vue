@@ -46,8 +46,8 @@ export default {
       monthlyTotalQuantity: 0,
       monthlyTransactionCount: 0,
       transactionColumns: [
-        { title: 'Customer', key: 'custome_name' },
-        { title: 'Product Name', key: 'title' },
+        { title: 'Customer', key: 'customer_name' },
+        { title: 'Product Name', key: 'title' },   // use 'title' here
         { title: 'Quantity', key: 'quantity' },
         {
           title: 'Price (₱)',
@@ -80,7 +80,7 @@ export default {
     async fetchLatestTransactions() {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*, products(title)')
+        .select('*, products(title)')   // plural products as per supabase relationship
         .order('created_at', { ascending: false })
         .limit(5)
 
@@ -91,7 +91,7 @@ export default {
 
       this.latestTransactions = data.map(txn => ({
         ...txn,
-        productName: txn.product?.product_name || ''
+        title: txn.products?.title || '',   // map product title to 'title' for table key
       }))
     },
 
